@@ -13,7 +13,7 @@
 class MPU6050
 {
 public:
-    MPU6050(i2c_port_t i2c_port, gpio_num_t sda_pin, gpio_num_t scl_pin) : i2c_port_(i2c_port), sda_pin_(sda_pin), scl_pin_(scl_pin), device_address_(MPU6050_ADDRESS) {}
+    MPU6050(i2c_port_t i2c_port, gpio_num_t sda_pin, gpio_num_t scl_pin);
 
     bool initialize();
 
@@ -38,6 +38,21 @@ private:
     int16_t accelerometer_y_offset_;
     int16_t accelerometer_z_offset_;
 };
+
+MPU6050::MPU6050(i2c_port_t i2c_port, gpio_num_t sda_pin, gpio_num_t scl_pin) {
+    i2c_port_ = i2c_port;
+    device_address_ = MPU6050_ADDRESS;
+    i2c_config_t i2c_config = {
+        .mode = I2C_MODE_MASTER,
+        .sda_io_num = sda_pin,
+        .scl_io_num = scl_pin,
+        .sda_pullup_en = GPIO_PULLUP_ENABLE,
+        .scl_pullup_en = GPIO_PULLUP_ENABLE,
+        .master.clk_speed = 100000
+    };
+    i2c_param_config(i2c_port_, &i2c_config);
+    i2c_driver_install(i2c_port_, I2C_MODE_MASTER, 0, 0, 0);
+}
 
 bool MPU6050::initialize()
 {
